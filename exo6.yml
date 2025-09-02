@@ -1,0 +1,243 @@
+openapi: 3.0.3
+info:
+  title: API Gestion des Profils Utilisateurs
+  version: 1.0.0
+
+paths:
+  /users:
+    get:
+      tags: [Users]
+      summary: Lister tous les profils utilisateurs
+      responses:
+        '200':
+          description: Liste des profils utilisateurs
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UserProfile'
+              example:
+                - identifier: "u123"
+                  first_name: "Alice"
+                  last_name: "Rakoto"
+                  birthdate: "1990-05-12"
+                  email: "alice@example.com"
+                  address_street: "Rue des Fleurs"
+                  address_city: "Antananarivo"
+                  address_country: "MG"
+                  address_postal_code: "101"
+                  needs_newsletter: true
+                  language: "fr"
+                - identifier: "u124"
+                  first_name: "Bob"
+                  last_name: "Randria"
+                  birthdate: "1985-10-20"
+                  email: "bob@example.com"
+                  address_street: "Avenue de l'Indépendance"
+                  address_city: "Toamasina"
+                  address_country: "MG"
+                  address_postal_code: "501"
+                  needs_newsletter: false
+                  language: "mg"
+
+    post:
+      tags: [Users]
+      summary: Créer un nouveau profil utilisateur
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateUserProfile'
+            example:
+              first_name: "Charlie"
+              last_name: "Rasoa"
+              birthdate: "2000-07-15"
+              email: "charlie@example.com"
+              address_street: "Rue de l’Université"
+              address_city: "Mahajanga"
+              address_country: "MG"
+              address_postal_code: "401"
+              needs_newsletter: true
+              language: "eng"
+      responses:
+        '201':
+          description: Profil utilisateur créé
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfile'
+              example:
+                identifier: "u125"
+                first_name: "Charlie"
+                last_name: "Rasoa"
+                birthdate: "2000-07-15"
+                email: "charlie@example.com"
+                address_street: "Rue de l’Université"
+                address_city: "Mahajanga"
+                address_country: "MG"
+                address_postal_code: "401"
+                needs_newsletter: true
+                language: "eng"
+
+  /users/{id}:
+    get:
+      tags: [Users]
+      summary: Récupérer un profil utilisateur
+      parameters:
+        - $ref: '#/components/parameters/UserId'
+      responses:
+        '200':
+          description: Profil utilisateur trouvé
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfile'
+        '404':
+          description: Profil utilisateur non trouvé
+          content:
+            application/json:
+              example:
+                error: "User not found"
+
+    put:
+      tags: [Users]
+      summary: Remplacer complètement un profil utilisateur
+      parameters:
+        - $ref: '#/components/parameters/UserId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateUserProfile'
+      responses:
+        '200':
+          description: Profil utilisateur mis à jour
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfile'
+        '404':
+          description: Profil utilisateur non trouvé
+          content:
+            application/json:
+              example:
+                error: "User not found"
+
+  /users/{id}/newsletter:
+    put:
+      tags: [Users]
+      summary: Mettre à jour uniquement l'abonnement à la newsletter
+      parameters:
+        - $ref: '#/components/parameters/UserId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                needs_newsletter:
+                  type: boolean
+              example:
+                needs_newsletter: false
+      responses:
+        '200':
+          description: Newsletter mise à jour
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfile'
+        '404':
+          description: Utilisateur non trouvé
+          content:
+            application/json:
+              example:
+                error: "User not found"
+
+  /users/{id}/language:
+    put:
+      tags: [Users]
+      summary: Mettre à jour uniquement la langue préférée
+      parameters:
+        - $ref: '#/components/parameters/UserId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                language:
+                  $ref: '#/components/schemas/LanguageEnum'
+              example:
+                language: "fr"
+      responses:
+        '200':
+          description: Langue mise à jour
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfile'
+        '404':
+          description: Utilisateur non trouvé
+          content:
+            application/json:
+              example:
+                error: "User not found"
+
+components:
+  parameters:
+    UserId:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: string
+      description: Identifiant unique de l’utilisateur
+      example: "u123"
+
+  schemas:
+    BaseUserProfile:
+      type: object
+      properties:
+        first_name:
+          type: string
+        last_name:
+          type: string
+        birthdate:
+          type: string
+          format: date
+        email:
+          type: string
+          format: email
+        address_street:
+          type: string
+        address_city:
+          type: string
+        address_country:
+          type: string
+        address_postal_code:
+          type: string
+        needs_newsletter:
+          type: boolean
+        language:
+          $ref: '#/components/schemas/LanguageEnum'
+
+    UserProfile:
+      allOf:
+        - $ref: '#/components/schemas/BaseUserProfile'
+        - type: object
+          properties:
+            identifier:
+              type: string
+
+    CreateUserProfile:
+      allOf:
+        - $ref: '#/components/schemas/BaseUserProfile'
+
+    LanguageEnum:
+      type: string
+      enum: [mg, fr, eng]
