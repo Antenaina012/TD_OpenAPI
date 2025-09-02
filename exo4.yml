@@ -1,0 +1,70 @@
+openapi: 3.0.3
+info:
+  title: API Produits
+  version: 1.0.0
+
+paths:
+  /products:
+    get:
+      summary: Récupérer une liste de produits
+      parameters:
+        - $ref: '#/components/parameters/LimitParam'
+        - $ref: '#/components/parameters/QParam'
+      responses:
+        '200':
+          description: Liste de produits retrouvée
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Product'
+              examples:
+                plusieursProduits:
+                  summary: Résultat avec plusieurs produits
+                  value:
+                    - name: "Lait entier"
+                      expiration_datetime: "2025-09-10T12:00:00Z"
+                      price: 1.99
+                    - name: "Pâtes"
+                      expiration_datetime: "2026-01-01T00:00:00Z"
+                      price: 2.49
+                listeVide:
+                  summary: Résultat sans produits
+                  value: []
+
+components:
+  parameters:
+    LimitParam:
+      name: limit
+      in: query
+      required: false
+      schema:
+        type: integer
+        minimum: 1
+      description: Nombre maximum d'éléments à retourner
+      example: 10
+    QParam:
+      name: q
+      in: query
+      required: false
+      schema:
+        type: string
+      description: Terme de recherche à appliquer sur le nom du produit
+      example: "lait"
+
+  schemas:
+    Product:
+      type: object
+      properties:
+        name:
+          type: string
+          example: "Lait entier"
+        expiration_datetime:
+          type: string
+          format: date-time
+          example: "2025-09-10T12:00:00Z"
+        price:
+          type: number
+          format: float
+          example: 1.99
