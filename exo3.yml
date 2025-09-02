@@ -1,30 +1,7 @@
-openapi: 3.0.3
-info:
-  title: API de gestion de tâches
-  version: 1.0.0
-
 paths:
-  /tasks:
-    get:
-      summary: Récupérer toutes les tâches
-      responses:
-        '200':
-          description: Liste de toutes les tâches
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Task'
-              example:
-                - id: 1
-                  title: Faire les courses
-                  completed: false
-                - id: 2
-                  title: Réviser examen
-                  completed: true
+  /users:
     post:
-      summary: Créer une liste de nouvelles tâches
+      summary: Créer plusieurs utilisateurs
       requestBody:
         required: true
         content:
@@ -32,112 +9,13 @@ paths:
             schema:
               type: array
               items:
-                $ref: '#/components/schemas/Task'
-            example:
-              - id: 3
-                title: Lire un livre
-                completed: false
-              - id: 4
-                title: Coder un projet
-                completed: false
+                $ref: '#/components/schemas/CreateUserProfile'
       responses:
         '201':
-          description: Liste des nouvelles tâches créées
+          description: Utilisateurs créés
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Task'
-
-  /tasks/{id}:
-    get:
-      summary: Récupérer une tâche par son ID
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: integer
-      responses:
-        '200':
-          description: Tâche retrouvée
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Task'
-        '404':
-          description: Tâche non trouvée
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  error:
-                    type: string
-              example:
-                error: "Task not found"
-
-    delete:
-      summary: Supprimer une tâche par son ID
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: integer
-      responses:
-        '200':
-          description: Tâche supprimée
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Task'
-        '404':
-          description: Tâche non trouvée
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  error:
-                    type: string
-              example:
-                error: "Task not found"
-
-  /tasks/delete:
-    delete:
-      summary: Supprimer une liste de tâches par leurs IDs
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: array
-              items:
-                type: integer
-            example: [1, 2, 3]
-      responses:
-        '200':
-          description: Liste des tâches supprimées
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Task'
-
-components:
-  schemas:
-    Task:
-      type: object
-      properties:
-        id:
-          type: integer
-          example: 1
-        title:
-          type: string
-          example: Faire les courses
-        completed:
-          type: boolean
-          example: false
+                  $ref: '#/components/schemas/UserProfile'

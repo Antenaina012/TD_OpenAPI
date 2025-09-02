@@ -1,16 +1,68 @@
 openapi: 3.0.3
 info:
-  title: API Ping
+  title: User API
   version: 1.0.0
-paths:
-  /ping:
-    get:
-      summary: Vérifie la disponibilité du service
-      responses:
-        '200':
-          description: Réponse trouvé
-          content:
-            text/plain:
-              schema:
-                type: string
-                example: pong
+
+components:
+  schemas:
+    # Schéma principal
+    UserProfile:
+      type: object
+      properties:
+        identifier:
+          type: string
+        personalInfo:
+          $ref: '#/components/schemas/PersonalInfo'
+        address:
+          $ref: '#/components/schemas/Address'
+        preferences:
+          $ref: '#/components/schemas/Preferences'
+      required: [identifier, personalInfo, address, preferences]
+
+    # Schéma de création sans identifiant
+    CreateUserProfile:
+      allOf:
+        - $ref: '#/components/schemas/PersonalInfo'
+        - $ref: '#/components/schemas/Address'
+        - $ref: '#/components/schemas/Preferences'
+
+    # Informations personnelles
+    PersonalInfo:
+      type: object
+      properties:
+        first_name:
+          type: string
+        last_name:
+          type: string
+        birthdate:
+          type: string
+          format: date
+        email:
+          type: string
+          format: email
+      required: [first_name, last_name, birthdate, email]
+
+    # Adresse
+    Address:
+      type: object
+      properties:
+        street:
+          type: string
+        city:
+          type: string
+        country:
+          type: string
+        postal_code:
+          type: string
+      required: [street, city, country, postal_code]
+
+    # Préférences
+    Preferences:
+      type: object
+      properties:
+        needs_newsletter:
+          type: boolean
+        language:
+          type: string
+          enum: [mg, fr, eng]
+      required: [needs_newsletter, language]
