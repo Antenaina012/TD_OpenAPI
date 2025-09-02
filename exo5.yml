@@ -1,0 +1,193 @@
+openapi: 3.0.3
+info:
+  title: API Produits et Commandes
+  version: 1.0.0
+
+paths:
+  /products:
+    get:
+      tags:
+        - Products
+      summary: Récupérer une liste de produits
+      parameters:
+        - $ref: '#/components/parameters/LimitParam'
+        - $ref: '#/components/parameters/QParam'
+      responses:
+        '200':
+          description: Liste de produits retrouvée
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Product'
+              examples:
+                plusieursProduits:
+                  summary: Résultat avec plusieurs produits
+                  value:
+                    - name: "Lait entier"
+                      expiration_datetime: "2025-09-10T12:00:00Z"
+                      price: 1.99
+                    - name: "Pâtes"
+                      expiration_datetime: "2026-01-01T00:00:00Z"
+                      price: 2.49
+                listeVide:
+                  summary: Résultat sans produits
+                  value: []
+
+  /orders:
+    get:
+      tags:
+        - Orders
+      summary: Récupérer la liste paginée des commandes
+      parameters:
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/SizeParam'
+      responses:
+        '200':
+          description: Liste des commandes
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Order'
+              examples:
+                plusieursCommandes:
+                  summary: Exemple avec plusieurs commandes
+                  value:
+                    - identifier: 1001
+                      customer_name: "Alice"
+                      creation_datetime: "2025-09-02T08:00:00Z"
+                      total_amount: 49.90
+                    - identifier: 1002
+                      customer_name: "Bob"
+                      creation_datetime: "2025-09-02T09:30:00Z"
+                      total_amount: 15.00
+                listeVide:
+                  summary: Exemple sans commandes
+                  value: []
+
+    post:
+      tags:
+        - Orders
+      summary: Créer une nouvelle commande
+      security:
+        - basicAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Order'
+            examples:
+              nouvelleCommande:
+                summary: Exemple de requête de création
+                value:
+                  identifier: 1003
+                  customer_name: "Charlie"
+                  creation_datetime: "2025-09-02T10:00:00Z"
+                  total_amount: 75.50
+      responses:
+        '201':
+          description: Commande créée avec succès
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+              examples:
+                commandeCreee:
+                  summary: Exemple de commande créée
+                  value:
+                    identifier: 1003
+                    customer_name: "Charlie"
+                    creation_datetime: "2025-09-02T10:00:00Z"
+                    total_amount: 75.50
+        '401':
+          description: Authentification requise
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+              example:
+                error: "Unauthorized"
+
+components:
+  parameters:
+    LimitParam:
+      name: limit
+      in: query
+      required: false
+      schema:
+        type: integer
+        minimum: 1
+      description: Nombre maximum d'éléments à retourner
+      example: 10
+    QParam:
+      name: q
+      in: query
+      required: false
+      schema:
+        type: string
+      description: Terme de recherche à appliquer sur le nom du produit
+      example: "lait"
+    PageParam:
+      name: page
+      in: query
+      required: false
+      schema:
+        type: integer
+        minimum: 1
+      description: Numéro de page à récupérer
+      example: 1
+    SizeParam:
+      name: size
+      in: query
+      required: false
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+      description: Taille de page (nombre de résultats par page)
+      example: 20
+
+  schemas:
+    Product:
+      type: object
+      properties:
+        name:
+          type: string
+          example: "Lait entier"
+        expiration_datetime:
+          type: string
+          format: date-time
+          example: "2025-09-10T12:00:00Z"
+        price:
+          type: number
+          format: float
+          example: 1.99
+    Order:
+      type: object
+      properties:
+        identifier:
+          type: integer
+          example: 1001
+        customer_name:
+          type: string
+          example: "Alice"
+        creation_datetime:
+          type: string
+          format: date-time
+          example: "2025-09-02T08:00:00Z"
+        total_amount:
+          type: number
+          format: float
+          example: 49.90
+
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
